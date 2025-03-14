@@ -1,7 +1,3 @@
-Aqui está um exemplo de README para o seu projeto em português:
-
----
-
 # Projeto de Carrinho de Compras
 
 Este é um projeto backend para um sistema de carrinho de compras desenvolvido para uma avaliação academica usando Node.js, MongoDB e Mongoose. O sistema permite que os usuários adicionem, removam e visualizem produtos em seus carrinhos, com o total atualizado automaticamente. Além disso, o projeto inclui uma API RESTful para gerenciar as operações de carrinho.
