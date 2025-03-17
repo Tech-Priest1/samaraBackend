@@ -309,7 +309,7 @@ Aqui está uma descrição detalhada de como cada parte do seu backend é utiliz
 
 ### 12. **Registrar um usuário**
 
-- **URL**: `/api/users/register`
+- **URL**: `/api/users/`
 - **Método**: `POST`
 - **Descrição**: Registra um novo usuário no sistema.
 - **Corpo da requisição**:
