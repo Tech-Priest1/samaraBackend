@@ -379,18 +379,19 @@ Aqui está uma descrição detalhada de como cada parte do seu backend é utiliz
 - **Descrição**: Permite consultas GraphQL para acessar e manipular dados de categorias.
 - **Exemplo de Consulta**:
   ```graphql
-  query {
-    categories {
-      _id
-      nome
-    }
+  mutation {
+  createCategory(nome: "New Category") {
+    _id
+    nome
   }
+  }
+
   ```
 - **Resposta de Sucesso**:
   ```json
   {
     "data": {
-      "categories": [
+      "createCategory": [
         {
           "_id": "ID da categoria",
           "nome": "Nome da categoria"
