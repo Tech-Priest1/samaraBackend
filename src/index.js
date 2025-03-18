@@ -1,12 +1,13 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
 const connectDB = require("./config/db");
+const express = require("express");
+
+const cors = require("cors");
 const { graphqlHTTP } = require("express-graphql");
 const graphqlCategory = require("../src/models/graphqlCategory");
 
-const app = express();
+require("dotenv").config();
 
+const app = express();
 // Connect to the database
 connectDB();
 
@@ -32,5 +33,5 @@ app.use(
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server connectado na porta ${PORT}`);
 });
