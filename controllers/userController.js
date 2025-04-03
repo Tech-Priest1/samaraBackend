@@ -73,3 +73,24 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ message: "Erro ao deletar usuário", error: error.message });
   }
 };
+
+// Add this new controller method
+exports.getCurrentUser = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: "Acesso negado" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select('-senha');
+    
+    if (!user) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao buscar usuário", error: error.message });
+  }
+};
