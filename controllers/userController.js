@@ -44,21 +44,28 @@ exports.editUser = async (req, res) => {
     const { id } = req.params;
     const { nome, email, senha } = req.body;
     const token = req.headers.authorization;
+
     if (!token) return res.status(401).json({ message: "Acesso negado" });
+
     const decoded = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET);
     if (decoded.id !== id) return res.status(403).json({ message: "Acesso não autorizado" });
-    const hashedPassword = await bcrypt.hash(senha, 10);
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { nome, email, senha: hashedPassword },
-      { new: true }
-    );
+
+    const updateFields = { nome, email };
+
+    if (senha) {
+      updateFields.senha = await bcrypt.hash(senha, 10);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(id, updateFields, { new: true });
+
     if (!updatedUser) return res.status(404).json({ message: "Usuário não encontrado" });
+
     res.status(200).json({ message: "Usuário atualizado com sucesso", user: updatedUser });
   } catch (error) {
     res.status(500).json({ message: "Erro ao atualizar usuário", error: error.message });
   }
 };
+
 exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;

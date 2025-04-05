@@ -60,7 +60,6 @@ exports.getCart = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 exports.removeFromCart = async (req, res) => {
   try {
     const { usuario, produto } = req.params;
@@ -68,7 +67,6 @@ exports.removeFromCart = async (req, res) => {
     console.log("usuario:", usuario);
     console.log("produto:", produto);
 
-    // Find the user's cart and populate the produto field
     let cart = await findCartByUserId(usuario);
     console.log("cart:", cart);
 
@@ -76,33 +74,36 @@ exports.removeFromCart = async (req, res) => {
       return res.status(404).json({ message: "Carrinho não encontrado" });
     }
 
-    // Check if the produto exists in the cart by comparing product _id
-    const initialLength = cart.produtos.length;
-    cart.produtos = cart.produtos.filter(item => item.produto._id.toString() !== produto); // Compare produto._id
+    // Procurar o produto no carrinho
+    const existingProduct = cart.produtos.find(item =>
+      (item.produto._id?.toString() || item.produto.toString()) === produto
+    );
 
-    const finalLength = cart.produtos.length;
-
-    console.log(`Removed product? Initial length: ${initialLength}, Final length: ${finalLength}`);
-
-    // If no products were removed, send a message
-    if (initialLength === finalLength) {
+    if (!existingProduct) {
       return res.status(404).json({ message: "Produto não encontrado no carrinho" });
     }
 
-    // Recalculate the total
+    // Reduz a quantidade ou remove completamente
+    if (existingProduct.quantidade > 1) {
+      existingProduct.quantidade -= 1;
+    } else {
+      cart.produtos = cart.produtos.filter(item =>
+        (item.produto._id?.toString() || item.produto.toString()) !== produto
+      );
+    }
+
+    // Recalcular o total
     let total = 0;
     for (const item of cart.produtos) {
-      const product = await Product.findById(item.produto._id); // Use _id to find the product
-      if (product) {
-        total += product.preco * item.quantidade;
+      const productData = item.produto.preco ? item.produto : await Product.findById(item.produto._id || item.produto);
+      if (productData) {
+        total += productData.preco * item.quantidade;
       }
     }
 
-    // Update the total in the cart
     cart.total = total;
-
-    // Save the updated cart
     await cart.save();
+
     res.status(200).json({ message: "Produto removido do carrinho", cart });
   } catch (error) {
     console.error("Error:", error);
