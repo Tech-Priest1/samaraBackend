@@ -1,438 +1,228 @@
+# API de E-Commerce - Backend Completo
 
+## Índice
+- [Descrição do Projeto](#descrição-do-projeto)
+- [Funcionalidades](#funcionalidades)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Endpoints da API](#endpoints-da-api)
+  - [Gerenciamento de Usuários](#gerenciamento-de-usuários)
+  - [Gerenciamento de Categorias](#gerenciamento-de-categorias)
+  - [Gerenciamento de Produtos](#gerenciamento-de-produtos)
+  - [Gerenciamento de Carrinho](#gerenciamento-de-carrinho)
+  - [Gerenciamento de Pedidos](#gerenciamento-de-pedidos)
+- [Instalação](#instalação)
+- [Variáveis de Ambiente](#variáveis-de-ambiente)
+- [Contribuição](#contribuição)
 
----
+## Descrição do Projeto
 
-# Projeto de Carrinho de Compras
-
-Este é um projeto backend para um sistema de carrinho de compras desenvolvido para uma avaliação acadêmica usando Node.js, MongoDB e Mongoose. O sistema permite que os usuários adicionem, removam e visualizem produtos em seus carrinhos, com o total atualizado automaticamente. Além disso, o projeto inclui uma API RESTful para gerenciar as operações de carrinho.
+Sistema completo de backend para e-commerce desenvolvido com Node.js, Express e MongoDB. Esta API oferece autenticação de usuários, catálogo de produtos, funcionalidades de carrinho de compras e processamento de pedidos com autenticação segura via JWT.
 
 ## Funcionalidades
 
-- **Adicionar produtos ao carrinho**: Permite que os usuários adicionem produtos ao carrinho, com a quantidade especificada.
-- **Visualizar carrinho**: Permite que os usuários vejam o conteúdo do carrinho com todos os produtos e o total calculado.
-- **Remover produtos do carrinho**: Permite que os usuários removam produtos do carrinho, atualizando o total automaticamente.
-- **Atualização automática do total**: Sempre que um produto é adicionado ou removido, o total do carrinho é recalculado.
+- **Autenticação de Usuários**: Cadastro e login seguro com JWT
+- **Gestão de Produtos**: Operações CRUD completas para produtos
+- **Sistema de Categorias**: Organização de produtos em categorias
+- **Carrinho de Compras**: Carrinho persistente com cálculo automático de total
+- **Processamento de Pedidos**: Conversão de carrinhos em pedidos com rastreamento
+- **API RESTful**: Endpoints padronizados com verbos HTTP adequados
+- **Tratamento de Erros**: Respostas de erro detalhadas e registro em log
 
 ## Tecnologias Utilizadas
 
-- **Node.js**: Ambiente de execução para JavaScript.
-- **Express**: Framework web para construir a API.
-- **MongoDB**: Banco de dados NoSQL para armazenar dados de carrinho e produtos.
-- **Mongoose**: Biblioteca ODM para interagir com o MongoDB.
-- **Nanoid**: Gerador de IDs curtos e únicos.
-
----
+- **Backend**: Node.js, Express
+- **Banco de Dados**: MongoDB, Mongoose ODM
+- **Autenticação**: JWT, bcryptjs
+- **Outras**: dotenv, jsonwebtoken
 
 ## Endpoints da API
 
-### **Categoria**
+### Gerenciamento de Usuários
 
-#### 1. **Criar uma categoria**
-- **URL**: `/api/category`
-- **Método**: `POST`
-- **Descrição**: Cria uma nova categoria de produtos.
-- **Corpo da requisição**:
-  ```json
-  {
-    "nome": "Nome da categoria"
-  }
-  ```
-- **Resposta de Sucesso**:
-  ```json
-  {
-    "message": "Categoria criada",
-    "category": {
-      "_id": "ID da categoria",
-      "nome": "Nome da categoria"
-    }
-  }
-  ```
-- **Resposta de Erro**:
-  - `400`: Caso o nome não seja fornecido.
-  - `500`: Erro interno no servidor.
+#### Registrar Usuário
+`POST /api/users/register`
+```json
+{
+  "nome": "string",
+  "email": "string",
+  "senha": "string"
+}
+```
+- Sucesso: 201 Created
+- Erros: 400 (Usuário existe), 500 (Erro no servidor)
 
-#### 2. **Listar todas as categorias**
-- **URL**: `/api/category`
-- **Método**: `GET`
-- **Descrição**: Retorna uma lista de todas as categorias cadastradas.
-- **Resposta de Sucesso**:
-  ```json
-  {
-    "categories": [
-      {
-        "_id": "ID da categoria",
-        "nome": "Nome da categoria"
-      }
-    ]
-  }
-  ```
-- **Resposta de Erro**:
-  - `500`: Erro interno no servidor.
+#### Login do Usuário
+`POST /api/users/login`
+```json
+{
+  "email": "string",
+  "senha": "string"
+}
+```
+- Retorna token JWT
+- Erros: 401 (Credenciais inválidas), 500 (Erro no servidor)
 
-#### 3. **Atualizar uma categoria**
-- **URL**: `/api/category/:id`
-- **Método**: `PUT`
-- **Descrição**: Atualiza o nome de uma categoria existente.
-- **Parâmetros**: `id` (ID da categoria)
-- **Corpo da requisição**:
-  ```json
-  {
-    "nome": "Novo nome da categoria"
-  }
-  ```
-- **Resposta de Sucesso**:
-  ```json
-  {
-    "message": "Categoria atualizada",
-    "category": {
-      "_id": "ID da categoria",
-      "nome": "Novo nome da categoria"
-    }
-  }
-  ```
-- **Resposta de Erro**:
-  - `400`: Caso o nome não seja fornecido.
-  - `404`: Categoria não encontrada.
-  - `500`: Erro interno no servidor.
+#### Listar Todos Usuários
+`GET /api/users`
+- Retorna: Array de usuários (sem senhas)
+- Requer privilégios de admin
 
-#### 4. **Deletar uma categoria**
-- **URL**: `/api/category/:id`
-- **Método**: `DELETE`
-- **Descrição**: Remove uma categoria do sistema.
-- **Parâmetros**: `id` (ID da categoria)
-- **Resposta de Sucesso**:
-  ```json
-  {
-    "message": "Categoria deletada"
-  }
-  ```
-- **Resposta de Erro**:
-  - `404`: Categoria não encontrada.
-  - `500`: Erro interno no servidor.
+#### Obter Usuário Atual
+`GET /api/users/me`
+- Retorna dados do usuário autenticado
+- Requer token JWT válido
 
----
+#### Atualizar Usuário
+`PUT /api/users/:id`
+```json
+{
+  "nome": "string",
+  "email": "string",
+  "senha": "string" (opcional)
+}
+```
+- Requer token JWT válido (apenas próprio perfil)
+- Sucesso: 200 com usuário atualizado
 
-### **Usuário**
+#### Deletar Usuário
+`DELETE /api/users/:id`
+- Requer token JWT válido (apenas próprio perfil)
+- Sucesso: 200 com confirmação
 
-#### 1. **Registrar um usuário**
-- **URL**: `/api/users/register`
-- **Método**: `POST`
-- **Descrição**: Registra um novo usuário no sistema.
-- **Corpo da requisição**:
-  ```json
-  {
-    "nome": "Nome do usuário",
-    "email": "Email do usuário",
-    "senha": "Senha do usuário"
-  }
-  ```
-- **Resposta de Sucesso**:
-  ```json
-  {
-    "message": "Usuário registrado com sucesso"
-  }
-  ```
-- **Resposta de Erro**:
-  - `400`: Usuário já existe.
-  - `500`: Erro interno no servidor.
+### Gerenciamento de Categorias
 
-#### 2. **Login do usuário**
-- **URL**: `/api/users/login`
-- **Método**: `POST`
-- **Descrição**: Autentica um usuário e retorna um token JWT para acesso às rotas protegidas.
-- **Corpo da requisição**:
-  ```json
-  {
-    "email": "Email do usuário",
-    "senha": "Senha do usuário"
-  }
-  ```
-- **Resposta de Sucesso**:
-  ```json
-  {
-    "token": "Token JWT"
-  }
-  ```
-- **Resposta de Erro**:
-  - `401`: Credenciais inválidas.
-  - `500`: Erro interno no servidor.
+#### Criar Categoria
+`POST /api/category`
+```json
+{
+  "nome": "string"
+}
+```
+- Sucesso: 201 com nova categoria
+- Erros: 400 (Nome faltando), 500
 
-#### 3. **Listar todos os usuários**
-- **URL**: `/api/users`
-- **Método**: `GET`
-- **Descrição**: Retorna uma lista de todos os usuários cadastrados.
-- **Resposta de Sucesso**:
-  ```json
-  [
-    {
-      "_id": "ID do usuário",
-      "nome": "Nome do usuário",
-      "email": "Email do usuário"
-    }
-  ]
-  ```
-- **Resposta de Erro**:
-  - `500`: Erro interno no servidor.
+#### Listar Todas Categorias
+`GET /api/category`
+- Retorna: Array de todas categorias
 
----
+#### Atualizar Categoria
+`PUT /api/category/:id`
+```json
+{
+  "nome": "string"
+}
+```
+- Sucesso: 200 com categoria atualizada
+- Erros: 404 (Não encontrada), 500
 
-### **Produto**
+#### Deletar Categoria
+`DELETE /api/category/:id`
+- Sucesso: 200 com confirmação
+- Erros: 404 (Não encontrada), 500
 
-#### 1. **Criar um produto**
-- **URL**: `/api/products`
-- **Método**: `POST`
-- **Descrição**: Cria um novo produto no sistema.
-- **Corpo da requisição**:
-  ```json
-  {
-    "nome": "Nome do produto",
-    "descricao": "Descrição do produto",
-    "preco": preço,
-    "categoria": "ID da categoria",
-    "estoque": quantidade em estoque
-  }
-  ```
-- **Resposta de Sucesso**:
-  ```json
-  {
-    "message": "Produto criado com sucesso",
-    "product": {
-      "_id": "ID do produto",
-      "nome": "Nome do produto",
-      "descricao": "Descrição do produto",
-      "preco": preço,
-      "categoria": "ID da categoria",
-      "estoque": quantidade em estoque
-    }
-  }
-  ```
-- **Resposta de Erro**:
-  - `500`: Erro interno no servidor.
+### Gerenciamento de Produtos
 
-#### 2. **Listar todos os produtos**
-- **URL**: `/api/products`
-- **Método**: `GET`
-- **Descrição**: Retorna uma lista de todos os produtos cadastrados.
-- **Resposta de Sucesso**:
-  ```json
-  [
-    {
-      "_id": "ID do produto",
-      "nome": "Nome do produto",
-      "descricao": "Descrição do produto",
-      "preco": preço,
-      "categoria": "ID da categoria",
-      "estoque": quantidade em estoque
-    }
-  ]
-  ```
-- **Resposta de Erro**:
-  - `500`: Erro interno no servidor.
+#### Criar Produto
+`POST /api/products`
+```json
+{
+  "nome": "string",
+  "descricao": "string",
+  "preco": number,
+  "categoria": "string (ID)",
+  "estoque": number
+}
+```
+- Sucesso: 201 com novo produto
+- Erros: 500
 
-#### 3. **Deletar um produto**
-- **URL**: `/api/products/:id`
-- **Método**: `DELETE`
-- **Descrição**: Remove um produto do sistema.
-- **Parâmetros**: `id` (ID do produto)
-- **Resposta de Sucesso**:
-  ```json
-  {
-    "message": "Produto deletado com sucesso",
-    "product": {
-      "_id": "ID do produto",
-      "nome": "Nome do produto",
-      "descricao": "Descrição do produto",
-      "preco": preço,
-      "categoria": "ID da categoria",
-      "estoque": quantidade em estoque
-    }
-  }
-  ```
-- **Resposta de Erro**:
-  - `404`: Produto não encontrado.
-  - `500`: Erro interno no servidor.
+#### Listar Todos Produtos
+`GET /api/products`
+- Retorna: Array de todos produtos com categoria populada
 
----
+#### Deletar Produto
+`DELETE /api/products/:id`
+- Sucesso: 200 com produto deletado
+- Erros: 404 (Não encontrado), 500
 
-### **Carrinho**
+### Gerenciamento de Carrinho
 
-#### 1. **Adicionar produto ao carrinho**
-- **URL**: `/api/cart/add`
-- **Método**: `POST`
-- **Descrição**: Adiciona um produto ao carrinho de um usuário. Se o carrinho já existir, o produto será adicionado ou a quantidade será atualizada. Se o carrinho não existir, um novo carrinho será criado.
-- **Corpo da requisição**:
-  ```json
-  {
-    "usuario": "ID do usuário",
-    "produto": "ID do produto",
-    "quantidade": número de unidades
-  }
-  ```
-- **Resposta de Sucesso**:
-  ```json
-  {
-    "_id": "ID do carrinho",
-    "usuario": "ID do usuário",
-    "produtos": [
-      {
-        "produto": "ID do produto",
-        "quantidade": quantidade,
-        "_id": "ID do produto no carrinho"
-      }
-    ],
-    "total": valor total
-  }
-  ```
-- **Resposta de Erro**:
-  - `400`: Caso a quantidade não seja fornecida.
-  - `500`: Erro interno no servidor.
+#### Adicionar ao Carrinho
+`POST /api/cart/add`
+```json
+{
+  "usuario": "string (ID)",
+  "produto": "string (ID)",
+  "quantidade": number
+}
+```
+- Cria novo carrinho ou atualiza existente
+- Calcula total automaticamente
+- Retorna: Objeto completo do carrinho
 
-#### 2. **Obter carrinho de um usuário**
-- **URL**: `/api/cart/:usuario`
-- **Método**: `GET`
-- **Descrição**: Retorna o carrinho de compras de um usuário específico, incluindo os produtos adicionados e o valor total.
-- **Parâmetros**: `usuario` (ID do usuário)
-- **Resposta de Sucesso**:
-  ```json
-  {
-    "_id": "ID do carrinho",
-    "usuario": "ID do usuário",
-    "produtos": [
-      {
-        "produto": "ID do produto",
-        "quantidade": quantidade,
-        "_id": "ID do produto no carrinho"
-      }
-    ],
-    "total": valor total
-  }
-  ```
-- **Resposta de Erro**:
-  - `404`: Carrinho não encontrado.
-  - `500`: Erro interno no servidor.
+#### Obter Carrinho do Usuário
+`GET /api/cart/:usuario`
+- Retorna: Carrinho completo com produtos
+- 404 se carrinho estiver vazio
 
-#### 3. **Remover produto do carrinho**
-- **URL**: `/api/cart/:usuario/:produto`
-- **Método**: `DELETE`
-- **Descrição**: Remove um produto específico do carrinho de um usuário. O valor total do carrinho é recalculado após a remoção.
-- **Parâmetros**:
-  - `usuario`: ID do usuário.
-  - `produto`: ID do produto a ser removido.
-- **Resposta de Sucesso**:
-  ```json
-  {
-    "message": "Produto removido do carrinho",
-    "cart": {
-      "_id": "ID do carrinho",
-      "usuario": "ID do usuário",
-      "produtos": [
-        {
-          "produto": "ID do produto",
-          "quantidade": quantidade,
-          "_id": "ID do produto no carrinho"
-        }
-      ],
-      "total": valor total
-    }
-  }
-  ```
-- **Resposta de Erro**:
-  - `404`: Produto não encontrado no carrinho.
-  - `500`: Erro interno no servidor.
+#### Remover do Carrinho
+`DELETE /api/cart/:usuario/:produto`
+- Reduz quantidade ou remove item
+- Recalcula total
+- Retorna: Carrinho atualizado
 
----
-###  **Criar um pedido**
+### Gerenciamento de Pedidos
 
-- **URL**: `/api/orders`
-- **Método**: `POST`
-- **Descrição**: Cria um novo pedido com base nos produtos no carrinho do usuário. Após a criação do pedido, o carrinho é esvaziado.
-- **Corpo da requisição**:
-  ```json
-  {
-    "usuario": "ID do usuário"
-  }
-  ```
-- **Resposta de Sucesso**:
-  ```json
-  {
-    "message": "Pedido criado com sucesso",
-    "order": {
-      "_id": "ID do pedido",
-      "usuario": "ID do usuário",
-      "produtos": [
-        {
-          "produto": "ID do produto",
-          "quantidade": quantidade,
-          "precoUnitario": preço unitário
-        }
-      ],
-      "total": valor total
-    }
-  }
-  ```
-- **Resposta de Erro**:
-  - `404`: Carrinho não encontrado.
-  - `500`: Erro interno no servidor.
- 
----
-### **GraphQL Endpoint**
+#### Criar Pedido
+`POST /api/orders`
+```json
+{
+  "usuario": "string (ID)"
+}
+```
+- Converte carrinho em pedido
+- Limpa carrinho do usuário
+- Retorna: Detalhes do novo pedido
 
-- **URL**: `/graphql`
-- **Método**: `POST`
-- **Descrição**: Permite consultas GraphQL para acessar e manipular dados de categorias.
-- **Exemplo de Consulta**:
-  ```graphql
-  mutation {
-    createCategory(nome: "New Category") {
-      _id
-      nome
-    }
-  }
-  ```
-- **Resposta de Sucesso**:
-  ```json
-  {
-    "data": {
-      "createCategory": {
-        "_id": "ID da categoria",
-        "nome": "New Category"
-      }
-    }
-  }
-  ```
-
----
+#### Obter Pedidos do Usuário
+`GET /api/orders/:userId`
+- Retorna: Array de pedidos com detalhes de produtos
+- Ordenado por data (mais recente primeiro)
 
 ## Instalação
 
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/seu-usuario/seu-repositorio.git
-   ```
-2. Navegue até o diretório do projeto:
-   ```bash
-   cd seu-repositorio
-   ```
-3. Instale as dependências:
-   ```bash
-   npm install
-   ```
-4. Crie um arquivo `.env` na raiz do projeto com a variável de ambiente `MONGO_URI` para a URL do seu banco de dados MongoDB:
-   ```env
-   MONGO_URI=mongodb://localhost:27017/nome-do-banco
-   ```
+1. Clonar repositório:
+```bash
+git clone https://github.com/seu-repo/ecommerce-api.git
+cd ecommerce-api
+```
 
-5. Execute o servidor:
-   ```bash
-   npm start
-   ```
+2. Instalar dependências:
+```bash
+npm install
+```
 
-Agora, a API estará funcionando na URL `http://localhost:5000`.
+3. Configurar variáveis de ambiente (ver abaixo)
 
-## Contribuições
+4. Iniciar servidor:
+```bash
+npm start
+```
 
-1. Faça um fork do repositório.
-2. Crie uma nova branch (`git checkout -b minha-branch`).
-3. Faça as modificações necessárias e commite (`git commit -am 'Adiciona nova funcionalidade'`).
-4. Envie para o seu fork (`git push origin minha-branch`).
-5. Abra um pull request.
+## Variáveis de Ambiente
+
+Criar arquivo `.env` com:
+
+```env
+MONGO_URI=mongodb://localhost:27017/ecommerce
+JWT_SECRET=sua_chave_secreta_jwt
+PORT=5000
+```
+
+## Contribuição
+
+1. Faça um fork do projeto
+2. Crie sua branch de feature (`git checkout -b feature/NovaFuncionalidade`)
+3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/NovaFuncionalidade`)
+5. Abra um Pull Request
