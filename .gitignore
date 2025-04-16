@@ -29,4 +29,3 @@ yarn-error.*
 app-example
 # -----Backend-----
 /node_modules/
-/.env/

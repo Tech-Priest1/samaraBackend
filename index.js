@@ -27,6 +27,8 @@ app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/cart", require("./routes/cartRoutes"));
 app.use("/api/category", require("./routes/categoryRoutes"));
 app.use('/api/chat', require('./routes/chatRoutes'));
+app.use('/api/messages', require('./routes/messageRoutes'));
+
 
 
 // GraphQL 
