@@ -11,23 +11,13 @@ const app = express();
 // Connect to the database
 connectDB();
 
-app.options('*', (req, res) => {
-  console.log('OPTIONS preflight request received:', req.headers.origin);
-  res.sendStatus(204);
-});
-
-// Middlewares
-const corsOptions = {
+// Middlewares - coloque cors antes de tudo
+app.use(cors({
   origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 204,
-};
-
-app.use(cors(corsOptions));
-app.use(express.json());
-
-app.options('*', cors(corsOptions)); // handle preflight
+}));
 
 app.use(express.json());
 
@@ -40,8 +30,6 @@ app.use("/api/category", require("./routes/categoryRoutes"));
 app.use('/api/chat', require('./routes/chatRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));
 
-
-
 // GraphQL 
 app.use(
   "/graphql",
@@ -50,6 +38,7 @@ app.use(
     graphiql: true, 
   })
 );
+
 const PORT = process.env.PORT || 80;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Servidor rodando em http://0.0.0.0:${PORT}`);
