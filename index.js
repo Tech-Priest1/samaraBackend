@@ -11,6 +11,11 @@ const app = express();
 // Connect to the database
 connectDB();
 
+app.options('*', (req, res) => {
+  console.log('OPTIONS preflight request received:', req.headers.origin);
+  res.sendStatus(204);
+});
+
 // Middlewares
 const corsOptions = {
   origin: '*',
