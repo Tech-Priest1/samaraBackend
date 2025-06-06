@@ -39,7 +39,7 @@ app.use(
     graphiql: true, 
   })
 );
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 80;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Servidor rodando em http://0.0.0.0:${PORT}`);
 });
