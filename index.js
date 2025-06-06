@@ -2,7 +2,7 @@ const connectDB = require("./config/db");
 const express = require("express");
 const cors = require("cors");
 const { graphqlHTTP } = require("express-graphql");
-const graphqlCategory = require("../backend/models/graphqlCategory");
+const graphqlCategory = require("./models/graphqlCategory");
 
 require("dotenv").config();
 
